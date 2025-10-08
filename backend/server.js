@@ -60,8 +60,15 @@ app.post("/chat", async (req, res) => {
 });
 
 
+// Greet user instead of showing proactive suggestions - you can customize this for intital greeting 
 app.post("/suggest", async (req, res) => {
-  res.json({ suggestions: "" }); // send empty result
+  try {
+    const greeting = "What can I help you with? I'm your ALBIS AI chat assistant.";
+    res.json({ suggestions: greeting });
+  } catch (err) {
+    console.error("❌ Greeting Error:", err.message);
+    res.status(500).json({ error: "Failed to load greeting." });
+  }
 });
 
 
