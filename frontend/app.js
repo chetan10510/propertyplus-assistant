@@ -1,67 +1,74 @@
+const backendUrl = "http://localhost:5000";
 const chat = document.getElementById("chat");
-const msg = document.getElementById("msg");
-const flow = document.getElementById("flow");
-const send = document.getElementById("send");
-const mic = document.getElementById("mic");
+const input = document.getElementById("user-input");
+const sendBtn = document.getElementById("send");
+const flowSel = document.getElementById("flow");
 
-// 👉 Change this to your Render backend URL after deployment
-const API_URL = "https://propertyplus-backend.onrender.com";
-
-function addMessage(text, cls) {
-  const div = document.createElement("div");
-  div.className = "msg " + cls;
-  div.textContent = text;
-  chat.appendChild(div);
+function appendMessage(text, cls) {
+  const d = document.createElement("div");
+  d.className = "msg " + cls;
+  d.textContent = text;
+  chat.appendChild(d);
   chat.scrollTop = chat.scrollHeight;
 }
 
-async function sendMessage(m) {
-  if (!m) return;
-  addMessage("👤 " + m, "user");
-  msg.value = "";
+let inFlight = false;
+
+async function sendMessage(text) {
+  if (!text || inFlight) return;
+  inFlight = true;
+  sendBtn.disabled = true;
+
+  appendMessage(text, "user");
+  input.value = ""; // ✅ clear input right after sending
 
   try {
-    const res = await fetch(`${API_URL}/chat`, {
+    const res = await fetch(`${backendUrl}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: m, flow: flow.value, sessionId: "demo" })
+      body: JSON.stringify({
+        message: text,
+        flow: flowSel.value,
+        sessionId: "demo",
+      }),
     });
 
-    const data = await res.json();
-    addMessage("🤖 " + (data.reply || "Error"), "bot");
-  } catch (err) {
-    addMessage("❌ Connection error. Is backend running?", "bot");
+    if (!res.ok) {
+      const err = await res.text();
+      appendMessage("Error: " + err, "bot");
+    } else {
+      const data = await res.json();
+      appendMessage(data.reply || "No response", "bot");
+    }
+  } catch (e) {
+    appendMessage("Network or server error", "bot");
+    console.error(e);
+  } finally {
+    inFlight = false;
+    sendBtn.disabled = false;
   }
 }
 
-send.onclick = () => sendMessage(msg.value);
-msg.addEventListener("keypress", e => {
-  if (e.key === "Enter") sendMessage(msg.value);
+sendBtn.addEventListener("click", () => sendMessage(input.value.trim()));
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendMessage(input.value.trim());
+  }
 });
 
-window.onload = async () => {
+window.addEventListener("load", async () => {
   try {
-    const res = await fetch(`${API_URL}/suggest`, { method: "POST" });
-    const data = await res.json();
-    addMessage("💡 Suggestions:\n" + data.suggestions, "bot");
-  } catch (err) {
-    addMessage("⚠️ Could not load suggestions. Backend offline?", "bot");
+    const r = await fetch(`${backendUrl}/suggest`, { method: "POST" });
+    if (r.ok) {
+      const j = await r.json();
+      appendMessage(
+        j.suggestions || j.suggestions?.toString() || "No suggestions",
+        "bot"
+      );
+    }
+  } catch (e) {
+    console.warn("No suggestions available");
   }
-};
-
-// 🎤 Voice input
-let recognition;
-mic.onclick = () => {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    alert("SpeechRecognition not supported");
-    return;
-  }
-  recognition = new SR();
-  recognition.lang = "en-IN";
-  recognition.onresult = (e) => {
-    msg.value = e.results[0][0].transcript;
-    sendMessage(msg.value);
-  };
-  recognition.start();
-};
+});

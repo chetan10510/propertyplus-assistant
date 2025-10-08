@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <title>🏢 Property+ Assistant</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="utf-8" />
+  <title>Property+ Assistant</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🏢 Property+ Assistant</h1>
-  <div id="chat"></div>
+  <h1>Property+ Assistant</h1>
 
-  <div class="controls">
+  <div class="top-row">
+    <label for="flow">Choose flow</label>
     <select id="flow">
       <option value="general">General</option>
       <option value="add_property">Add Property</option>
@@ -17,11 +17,26 @@
       <option value="end_of_day">End of Day</option>
       <option value="maintenance">Maintenance</option>
     </select>
-    <input id="msg" placeholder="Type a message..."/>
-    <button id="send">Send</button>
-    <button id="mic">🎙️</button>
   </div>
 
+  <div class="voice-area">
+    <canvas id="voiceOrb"></canvas>
+    <div class="voice-controls">
+      <div id="voiceStatus">Tap start to speak</div>
+      <button id="start-voice">Start</button>
+      <button id="stop-voice" disabled>Stop</button>
+    </div>
+  </div>
+
+  <div id="chat" aria-live="polite"></div>
+
+  <div class="controls">
+    <input id="user-input" placeholder="Type a message..." autocomplete="off" />
+    <button id="send">Send</button>
+  </div>
+
+  <script src="orb.js"></script>
+  <script src="voice.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
