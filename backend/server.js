@@ -5,7 +5,7 @@ import cors from "cors";
 import { flows } from "./flows.js";
 import { getSession, updateSession, clearSession } from "./utils/memory.js";
 
-dotenv.config({ override: true });
+dotenv.config({ path: "./.env", override: true });
 const app = express();
 app.use(cors());
 app.use(express.json());

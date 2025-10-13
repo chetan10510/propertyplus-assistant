@@ -1,4 +1,5 @@
 const backendUrl = "https://propertyplus-backend.onrender.com";
+// const backendUrl = "http://localhost:5000"; // for local testing
 const chat = document.getElementById("chat");
 const input = document.getElementById("user-input");
 const sendBtn = document.getElementById("send");
