@@ -1,4 +1,12 @@
-# Ignore environment files and sensitive stuff
+# Ignore environment files
 .env
+*.env
+
+# Node modules
 node_modules/
+npm-debug.log
+.DS_Store
+
+# Build & deployment
 dist/
+coverage/

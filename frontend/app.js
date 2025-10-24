@@ -1,5 +1,7 @@
-const backendUrl = "https://propertyplus-backend.onrender.com";
-// const backendUrl = "http://localhost:5000"; // for local testing
+// --- Configuration ---
+// const backendUrl = "https://propertyplus-backend.onrender.com";
+const backendUrl = "http://localhost:5000"; // for local testing
+
 const chat = document.getElementById("chat");
 const input = document.getElementById("user-input");
 const sendBtn = document.getElementById("send");
@@ -21,15 +23,22 @@ async function sendMessage(text) {
   sendBtn.disabled = true;
 
   appendMessage(text, "user");
-  input.value = ""; // ✅ clear input right after sending
+  input.value = "";
 
   try {
-    const res = await fetch(`${backendUrl}/chat`, {
+    const isLiveQuery = /(hyderabad|austin|apartment|flat|property|house|price|listing|buy|rent|market)/i.test(text);
+    const isRagQuery = /(units|rent collection|occupancy|summary)/i.test(text);
+
+    let endpoint = "/chat";
+    if (isLiveQuery) endpoint = "/live-search";
+    else if (isRagQuery) endpoint = "/rag-search";
+
+    const res = await fetch(`${backendUrl}${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: text,
-        flow: flowSel.value,
+        flow: flowSel?.value || "general",
         sessionId: "demo",
       }),
     });
@@ -60,16 +69,15 @@ input.addEventListener("keydown", (e) => {
 });
 
 window.addEventListener("load", async () => {
+  appendMessage("👋 What can I help you with today? I’m your ALBIS AI Chat Assistant.", "bot");
+
   try {
     const r = await fetch(`${backendUrl}/suggest`, { method: "POST" });
     if (r.ok) {
       const j = await r.json();
-      appendMessage(
-        j.suggestions || j.suggestions?.toString() || "No suggestions",
-        "bot"
-      );
+      if (j.suggestions) appendMessage(j.suggestions, "bot");
     }
-  } catch (e) {
+  } catch {
     console.warn("No suggestions available");
   }
 });

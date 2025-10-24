@@ -1,0 +1,7 @@
+[
+  { "name": "Sunset Apartments", "city": "Austin", "price": 550000, "units": 25, "type": "Residential" },
+  { "name": "Hilltop Heights", "city": "Austin", "price": 480000, "units": 30, "type": "Condo" },
+  { "name": "Lakeview Residency", "city": "Bangalore", "price": 120000, "units": 45, "type": "Residential" },
+  { "name": "Greenfield Towers", "city": "New York", "price": 820000, "units": 60, "type": "Luxury" },
+  { "name": "Skyline Homes", "city": "Austin", "price": 630000, "units": 50, "type": "Residential" }
+]
